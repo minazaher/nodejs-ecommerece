@@ -1,32 +1,28 @@
 const Product = require('../models/product')
 
-exports.getAddProduct = (req, res, next) => {
-    res.render(
-        'admin/add-product',
-        {
-            pageTitle: 'Add Product',
-            path: '/admin/add-product'
-        })
-}
 
-exports.postAddProduct = (req, res, next) => {
-    const product = new Product(req.body.title)
-    product.save()
-    res.redirect('/')
+exports.getIndex = (req, res, next) => {
+    Product.getAll((allProducts) =>{
+        res.render("shop/index", {prods: allProducts,pageTitle: 'Shop', path: '/'})
+    });
 }
 
 exports.getProducts = (req, res, next) => {
     Product.getAll((allProducts) =>{
-        res.render("shop/product-list", {prods: allProducts,pageTitle: 'Shop', path: '/'})
+        res.render("shop/product-list", {prods: allProducts,pageTitle: 'Shop', path: '/products'})
     });
 }
 
 exports.getProductDetails =  (req,res,next) =>{
-    res.render("shop/product-details", {product:{}, pageTitle: 'Product Details', path: '/product-details'})
+    const productId = req.params.productId;
+    Product.getProductById(productId, (product) =>{
+        res.render("shop/product-detail", {product:product, pageTitle: 'Product Details', path: '/products'})
+
+    })
 }
 
-exports.getEditProduct = (req,res,next) => {
-    res.render("admin/edit-product", {pageTitle: 'Edit Details', path: '/edit-product'})
+exports.getOrders =  (req,res,next) =>{
+    res.render("shop/orders", {product:{}, pageTitle: 'Orders', path: '/orders'})
 }
 
 exports.getCheckout = (req,res,next) => {
