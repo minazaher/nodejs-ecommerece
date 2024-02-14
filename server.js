@@ -13,8 +13,6 @@ const app = express()
 app.set("view engine", "ejs")
 app.set("views","views")
 
-
-
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -23,4 +21,10 @@ app.use(shopRoutes)
 
 app.use(errorController.get404)
 
-app.listen(3000)
+db.sync().then(result => {
+    console.log("Connected Successfully")
+    app.listen(3000)
+}).catch(err =>{
+    console.log(err)
+})
+

@@ -3,18 +3,17 @@ const Cart = require('../models/cart')
 
 
 exports.getIndex = (req, res, next) => {
-    Product.getAll()
-        .then(([rows, tableMeta]) => {
+    Product.findAll()
+        .then((rows) => {
             res.render("shop/product-list", {prods: rows, pageTitle: 'Shop', path: '/'})
         })
         .catch(err => {
-            console.log(err)
         })
 }
 
 exports.getProducts = (req, res, next) => {
-    Product.getAll()
-        .then(([rows, tableMeta]) => {
+    Product.findAll()
+        .then((rows) => {
             res.render("shop/product-list", {prods: rows, pageTitle: 'Shop', path: '/products'})
         })
         .catch(err => {
@@ -23,11 +22,10 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProductDetails = (req, res, next) => {
     const productId = req.params.productId;
-
-    Product.getProductById(productId)
-        .then(([product]) =>{
+    Product.findByPk(productId)
+        .then((product) => {
             console.log(product)
-            res.render("shop/product-detail", {product: product[0], pageTitle: 'Product Details', path: '/products'})
+            res.render("shop/product-detail", {product: product, pageTitle: 'Product Details', path: '/products'})
         })
         .catch(err => {
             console.log(err)
@@ -62,6 +60,7 @@ exports.getCart = (req, res, next) => {
         }
     })
 }
+
 exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
     console.log("request sent")
@@ -71,9 +70,9 @@ exports.postCart = (req, res, next) => {
     res.redirect('/products')
 }
 
-exports.postDeleteCartProduct = (req,res,next) => {
+exports.postDeleteCartProduct = (req, res, next) => {
     const prodId = req.body.productId
-    Product.getProductById(prodId, product =>{
+    Product.getProductById(prodId, product => {
         Cart.deleteProduct(prodId, product.getPrice)
         res.redirect('/cart')
     })
