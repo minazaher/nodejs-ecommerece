@@ -1,5 +1,5 @@
 const Product = require('../models/product')
-const Cart = require('../models/cart')
+const Order = require('../models/order')
 
 
 exports.getIndex = (req, res, next) => {
@@ -12,6 +12,7 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
+    req.user.createCart()
     Product.findAll()
         .then((rows) => {
             res.render("shop/product-list", {prods: rows, pageTitle: 'Shop', path: '/products'})
@@ -32,8 +33,37 @@ exports.getProductDetails = (req, res, next) => {
         })
 }
 
+exports.postOrder = (req, res, next) => {
+    let fetchedCart ;
+    req.user.getCart()
+        .then(cart => {
+            fetchedCart = cart;
+            return cart.getProducts()
+        })
+        .then(products => {
+            return req.user.createOrder()
+                .then(order => {
+                    order.addProducts(products.map(product => {
+                            product.orderItem = {qty: product.cartItem.qty}
+                            return product
+                        })
+                    )
+                }).catch(err => console.log(err))
+        })
+        .then(() => { return fetchedCart.setProducts(null)})
+        .then(() => res.redirect('/orders'))
+        .catch((err) => console.log(err))
+
+}
+
 exports.getOrders = (req, res, next) => {
-    res.render("shop/orders", {product: {}, pageTitle: 'Orders', path: '/orders'})
+    req.user.getOrders({include : ['products']})
+        .then(orders =>{
+            res.render("shop/orders", {orders: orders,
+                pageTitle: 'Orders',
+                path: '/orders'})
+        })
+        .catch(err => console.log(err))
 }
 
 exports.getCheckout = (req, res, next) => {
@@ -47,7 +77,7 @@ exports.getCart = (req, res, next) => {
             return cart.getProducts()
                 .then(products => {
                     res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: products})
-                    console.log("products are : ",products[0])
+                    console.log("products are : ", products[0])
                 })
                 .catch(err => console.log(err))
 
@@ -69,12 +99,12 @@ exports.postCart = (req, res, next) => {
                         product = products[0]
                     if (product) {
                         const oldQty = product.cartItem.qty
-                        newQty = oldQty +1
+                        newQty = oldQty + 1
                         return product
                     }
                     return Product.findByPk(productId)
                 })
-                .then(product =>{
+                .then(product => {
                     return fetchedCart.addProduct(product,
                         {through: {qty: newQty}})
                 })
@@ -88,13 +118,13 @@ exports.postCart = (req, res, next) => {
 exports.postDeleteCartProduct = (req, res, next) => {
     const prodId = req.body.productId
     req.user.getCart()
-        .then(cart =>{
-            return cart.getProducts( {where: {id : prodId } })
+        .then(cart => {
+            return cart.getProducts({where: {id: prodId}})
         })
-        .then(product =>{
+        .then(product => {
             return product[0].cartItem.destroy()
         })
-        .then(() =>{
+        .then(() => {
             res.redirect("/cart")
         })
         .catch(err => console.log(err))
