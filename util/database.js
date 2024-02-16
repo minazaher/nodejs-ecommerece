@@ -1,10 +1,29 @@
-const Sequelize = require('sequelize')
+const mongodb = require('mongodb')
+const MongoClient = mongodb.MongoClient
 
-// returns a connection pool which is a promise
-const sequelize = new Sequelize('node_ecomm', 'root', 'root', {
-    dialect: 'mysql',
-    host: 'localhost'
-})
+let db
+const mongoConnect = (callback) =>{
+    MongoClient
+        .connect("mongodb+srv://MinaZaher:QvyBUi6Oq7TbXpks@cluster0.mysoorl.mongodb.net/")
+        .then(client =>{
+            console.log("Connected Successfully!")
+            db = client.db('shop')
+            callback()
+        })
+        .catch((err) => {
+            console.log("Database Connection Failed Please Try Again")
+            throw err
+        })
+}
+const getDb = () => {
+    if (db) {
+        return db;
+    } else {
+        throw "no database found";
+    }
+};
 
 
-module.exports = sequelize
+
+exports.mongoConnect = mongoConnect
+exports.getDb = getDb

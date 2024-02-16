@@ -11,6 +11,7 @@ router.get('/products',shopController.getProducts)
 router.get('/products/delete')
 
 router.get('/products/:productId',shopController.getProductDetails)
+/*
 
 router.get('/cart',shopController.getCart)
 
@@ -23,6 +24,6 @@ router.get('/orders',shopController.getOrders)
 router.post('/create-order',shopController.postOrder)
 
 router.get('/checkout',shopController.getCheckout)
-
+*/
 
 module.exports = router
