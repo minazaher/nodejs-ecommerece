@@ -2,11 +2,12 @@ const getDb = require('../util/database').getDb
 const mongodb = require('mongodb')
 
 class Product {
-    constructor(title, price, description, imgUrl) {
+    constructor(title, price, description, imgUrl, userId) {
         this.title = title;
         this.price = price;
         this.description = description;
         this.imgUrl = imgUrl;
+        this.userId = userId
     }
 
     static fetchAll() {

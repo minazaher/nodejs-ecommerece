@@ -2,7 +2,7 @@ const Product = require('../models/product')
 const mongodb = require("mongodb");
 
 exports.getAddProduct = (req, res, next) => {
-    res.render(
+      res.render(
         'admin/edit-product',
         {
             pageTitle: 'Add Product',
@@ -12,11 +12,13 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
+    const userId = req.user._id
+    console.log("the user id is : ", userId)
     const title = req.body.title;
     const imgUrl = req.body.imgUrl;
     const description = req.body.description;
     const price = req.body.price;
-    const product = new Product(title, price, description, imgUrl)
+    const product = new Product(title, price, description, imgUrl, userId)
     product.save()
         .then((result) =>{
         console.log(result)
