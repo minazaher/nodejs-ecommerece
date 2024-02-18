@@ -1,9 +1,8 @@
 const Product = require('../models/product')
-const Order = require('../models/order')
 
 
 exports.getIndex = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
         .then((rows) => {
             res.render("shop/product-list", {prods: rows, pageTitle: 'Shop', path: '/'})
         })
@@ -12,7 +11,7 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
         .then((rows) => {
             res.render("shop/product-list", {prods: rows, pageTitle: 'Shop', path: '/products'})
         })
@@ -58,8 +57,11 @@ exports.getCheckout = (req, res, next) => {
 }
 */
 exports.getCart = (req, res, next) => {
-    req.user.fetchCartItems().then( cartProducts=> {
-        res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: cartProducts})
+    req.user
+        .populate('cart.items.productId')
+        .then( user => {
+            const products = user.cart.items
+        res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: products})
     } )
 
 }

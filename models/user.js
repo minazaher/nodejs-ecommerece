@@ -1,8 +1,59 @@
-const getDb = require('../util/database').getDb
-const mongodb = require('mongodb')
-
 const ProductModel = require('./product')
 
+const mongoose = require('mongoose')
+
+const Schema = mongoose.Schema
+
+const userSchema = new Schema({
+    name:{
+        type: String,
+        required: true
+    },
+    email:{
+        type: String,
+        required: true
+    },
+    cart:{
+       items: [{productId: {type: Schema.Types.ObjectId, ref: 'Product',required: true}, qty:{type:Number, required:true}}]
+    },
+})
+
+userSchema.methods.addToCart = function (product){
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+        return cp.productId.toString() === product._id.toString();
+    });
+    console.log("index is ",cartProductIndex)
+    let newQuantity = 1;
+    const updatedCartItems = [...this.cart.items];
+
+    if (cartProductIndex >= 0) {
+        newQuantity = this.cart.items[cartProductIndex].qty + 1;
+        updatedCartItems[cartProductIndex].qty = newQuantity;
+    } else {
+        updatedCartItems.push({
+            productId: product._id,
+            qty: newQuantity
+        });
+    }
+    this.cart = {
+        items: updatedCartItems
+    }
+    return this.save()
+}
+
+userSchema.methods.deleteFromCart = function (productId){
+    const updatedCartItems = this.cart.items.filter(p => {
+        return p.productId.toString() !== productId.toString()
+    })
+
+    this.cart = {
+        items: updatedCartItems
+    }
+    return this.save()
+
+}
+
+/*
 class User {
     constructor(id, username, email, cart) {
         this._id = id
@@ -101,5 +152,5 @@ class User {
 
     }
 }
-
-module.exports = User;
+*/
+module.exports = mongoose.model('User', userSchema);

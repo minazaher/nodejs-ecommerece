@@ -24,6 +24,6 @@ const getDb = () => {
 };
 
 
-
+exports.databaseUrl = "mongodb+srv://MinaZaher:QvyBUi6Oq7TbXpks@cluster0.mysoorl.mongodb.net/";
 exports.mongoConnect = mongoConnect
 exports.getDb = getDb
