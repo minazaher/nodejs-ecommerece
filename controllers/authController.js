@@ -6,7 +6,6 @@ exports.getLogin = (req, res, next) => {
     res.render("auth/login", {pageTitle: 'Login', path: '/login', isAuthenticated: false})
 }
 
-
 exports.postLogin = (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
@@ -36,6 +35,7 @@ exports.getSignup = (req, res, next) => {
     console.log(req.session)
     res.render("auth/signup", {pageTitle: 'Signup', path: '/signup', isAuthenticated: false})
 }
+
 exports.postSignup = (req, res, next) => {
     const email = req.body.email
     const password = req.body.password

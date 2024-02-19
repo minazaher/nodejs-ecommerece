@@ -3,25 +3,23 @@ const express = require("express")
 const router = express.Router()
 
 const shopController = require("../controllers/shopController")
+const isAuthenticated = require("../middleware/isAuth")
 
 router.get('/' ,shopController.getIndex)
 
 router.get('/products',shopController.getProducts)
 
-
-router.get('/products/delete')
-
 router.get('/products/:productId',shopController.getProductDetails)
 
-router.post('/cart',shopController.postCart)
+router.post('/cart',isAuthenticated, shopController.postCart)
 
-router.get('/cart',shopController.getCart)
+router.get('/cart',isAuthenticated, shopController.getCart)
 
-router.post('/cart-delete-item',shopController.postDeleteCartProduct)
+router.post('/cart-delete-item',isAuthenticated, shopController.postDeleteCartProduct)
 
-router.get('/orders',shopController.getOrders)
+router.get('/orders',isAuthenticated, shopController.getOrders)
 
-router.post('/create-order',shopController.postOrder)
+router.post('/create-order',isAuthenticated, shopController.postOrder)
 /*
 router.get('/checkout',shopController.getCheckout)
 */
