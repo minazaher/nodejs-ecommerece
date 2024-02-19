@@ -1,14 +1,24 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require("path")
+const mongoose = require('mongoose')
+const session = require('express-session')
+const sessionStore = require('connect-mongodb-session')(session)
 
+const databaseUrl = require('./util/database').databaseUrl
+
+const store= new sessionStore({
+    uri: databaseUrl,
+    collection : 'sessions'
+})
 
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
-const errorController = require("./controllers/errorController")
-const databaseUrl = require('./util/database').databaseUrl
+const authRoutes = require('./routes/auth')
 
-const mongoose = require('mongoose')
+const errorController = require("./controllers/errorController")
+
+
 
 const User = require('./models/user')
 
@@ -19,26 +29,26 @@ app.set("views", "views")
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(session({secret:'secret_code', resave:false, saveUninitialized:false, store: store}))
 
 app.use((req, res, next) => {
-    User.findById("65d101a5e0fabe3177c2afd7")
+    if (!req.session.user) return next()
+    User.findById(req.session.user._id)
         .then(user =>{
             req.user = user
             next()
         }).catch(err => console.log(err))
-
     }
 )
 app.use('/admin/', adminRoutes)
+app.use(authRoutes)
 app.use(shopRoutes)
 
 
 app.use(errorController.get404)
 
 mongoose.connect(databaseUrl).then(() => {
-
     app.listen(3000)
-
 }).catch(err => {
     console.log(err)
 })
