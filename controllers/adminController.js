@@ -2,7 +2,7 @@ const Product = require('../models/product')
 const mongodb = require("mongodb");
 
 exports.getAddProduct = (req, res, next) => {
-      res.render(
+    res.render(
         'admin/edit-product',
         {
             pageTitle: 'Add Product',
@@ -18,21 +18,20 @@ exports.postAddProduct = (req, res, next) => {
     const imgUrl = req.body.imgUrl;
     const description = req.body.description;
     const price = req.body.price;
-    const product = new Product(
-        {title:title,
-            price:price,
-            description:description,
-            imgUrl:imgUrl,
+    const product = new Product({
+            title: title,
+            price: price,
+            description: description,
+            imgUrl: imgUrl,
             userId: req.user._id
         }
-
     )
     product.save()
-        .then((result) =>{
-        console.log(result)
-        res.redirect('/admin/products')
-    })
-        .catch((err) =>{
+        .then((result) => {
+            console.log(result)
+            res.redirect('/admin/products')
+        })
+        .catch((err) => {
             console.log(err)
         })
 }
@@ -46,18 +45,18 @@ exports.postEditProduct = (req, res, next) => {
     const updatedDesc = req.body.description;
 
     Product.findById(prodId)
-        .then(product=>{
+        .then(product => {
             product.title = updatedTitle
             product.price = updatedPrice
             product.imgUrl = updatedImageUrl
             product.description = updatedDesc
             return product.save()
-        }).then(() =>{
+        }).then(() => {
         res.redirect('/admin/products');
     })
-        .catch((err) =>{
-        console.log(err)
-    })
+        .catch((err) => {
+            console.log(err)
+        })
 };
 
 
@@ -69,7 +68,7 @@ exports.getEditProduct = (req, res, next) => {
     const prodId = req.params.productId;
 
     Product.findById(prodId)
-    .then(product =>{
+        .then(product => {
             res.render('admin/edit-product', {
                 pageTitle: 'Edit Product',
                 path: '/admin/edit-product',
@@ -77,20 +76,20 @@ exports.getEditProduct = (req, res, next) => {
                 product: product,
                 isAuthenticated: req.session.isLoggedIn
             });
-        }).catch(() =>{
+        }).catch(() => {
         res.redirect('/')
     })
 
-}; 
+};
 
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId
     Product.findByIdAndDelete(prodId)
-        .then(() =>{
+        .then(() => {
             res.redirect('/admin/products')
         })
-        .catch((err) =>{
+        .catch((err) => {
             console.log(err)
         })
 
@@ -100,7 +99,8 @@ exports.postDeleteProduct = (req, res, next) => {
 exports.getAdminProducts = (req, res, next) => {
     Product.find()
         .then((products) => {
-            res.render("admin/product-list", {prods: products, pageTitle: 'Shop', path: '/admin/products',isAuthenticated: req.session.isLoggedIn
+            res.render("admin/product-list", {
+                prods: products, pageTitle: 'Shop', path: '/admin/products', isAuthenticated: req.session.isLoggedIn
             })
         })
         .catch(err => {
