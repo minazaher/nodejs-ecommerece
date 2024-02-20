@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const session = require('express-session')
 const sessionStore = require('connect-mongodb-session')(session)
 const CSRF = require('csurf')
+const flash = require('connect-flash')
 
 const databaseUrl = require('./util/database').databaseUrl
 
@@ -33,7 +34,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(session({secret:'secret_code', resave:false, saveUninitialized:false, store: store}))
 app.use(csrfProtection)
-
+app.use(flash())
 app.use((req, res, next) => {
     if (!req.session.user) return next()
     User.findById(req.session.user._id)

@@ -8,11 +8,11 @@ exports.getIndex = (req, res, next) => {
             res.render("shop/product-list", {
                 prods: rows,
                 pageTitle:'Shop',
-                path: '/',
-                isAuthenticated: req.session.isLoggedIn
+                path: '/'
             })
         })
         .catch(err => {
+            console.log(err)
         })
 }
 
@@ -22,12 +22,12 @@ exports.getProducts = (req, res, next) => {
             res.render("shop/product-list", {
                     prods: rows,
                 pageTitle: 'Shop',
-                path: '/products',
-                isAuthenticated: req.session.isLoggedIn
+                path: '/products'
 
             })
         })
         .catch(err => {
+            console.log(err)
         })
 }
 
@@ -40,8 +40,7 @@ exports.getProductDetails = (req, res, next) => {
             res.render("shop/product-detail", {
                 product: product,
                 pageTitle: 'Product Details',
-                path: '/products',
-                isAuthenticated: req.session.isLoggedIn
+                path: '/products'
             })
         })
         .catch(err => {
@@ -57,7 +56,7 @@ exports.postOrder = (req, res, next) => {
             })
             const order = new Order({
                 user:{
-                    name: req.user.name,
+                    email: req.user.email,
                     userId: req.user
                 },
                 products: products
@@ -79,8 +78,7 @@ exports.getOrders = (req, res, next) => {
         .then(orders =>{
             res.render("shop/orders", {orders: orders,
                 pageTitle: 'Orders',
-                path: '/orders',
-                isAuthenticated: req.session.isLoggedIn
+                path: '/orders'
             })
         })
         .catch(err => console.log(err))
@@ -95,7 +93,7 @@ exports.getCart = (req, res, next) => {
         .populate('cart.items.productId')
         .then( user => {
             const products = user.cart.items
-        res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: products, isAuthenticated: req.session.isLoggedIn
+        res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: products
         })
     } )
 
