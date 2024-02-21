@@ -2,6 +2,8 @@ const User = require("../models/user");
 
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
+const {validationResult} = require('express-validator')
+
 
 const nodeMailer = require('nodemailer')
 
@@ -25,6 +27,12 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
+
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(422).render("auth/login", {pageTitle: 'Login', path: '/login', error: errors.array()[0].msg})
+    }
+
     User.findOne({email: email})
         .then(user => {
             if (!user) {
@@ -52,41 +60,47 @@ exports.postLogin = (req, res, next) => {
 exports.getSignup = (req, res, next) => {
     let errorMessage = req.flash('error')
     errorMessage = errorMessage.length > 0 ? errorMessage[0] : null
-    res.render("auth/signup", {pageTitle: 'Signup', path: '/signup', isAuthenticated: false, error: errorMessage})
+    res.render("auth/signup",
+        {
+            pageTitle: 'Signup',
+            path: '/signup',
+            error: errorMessage,
+            oldInput: { email:"", password:"", confirmPassword: ""}
+        })
 }
 
 exports.postSignup = (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
-    const confirmPassword = req.body.confirmPassword
-    User.findOne({email: email})
-        .then((user) => {
-            if (user) {
-                req.flash('error', "Email Already Exists . Try Login or Use Another Email")
-                return res.redirect('/signup')
-            }
-            return bcrypt.hash(password, 12).then(hashedPassword => {
-                const newUser = new User({
-                    email: email,
-                    password: hashedPassword,
-                    cart: {items: []}
-                })
-                return newUser.save()
-            }).then(() => {
-                res.redirect('/login')
-                return transporter.sendMail({
-                    to: email,
-                    from: 'menazaher115@gmail.com',
-                    subject: "Successful Signup",
-                    html: 'You Have Signed Up Successfully'
-                })
-            }).catch(err => {
-                console.log(err)
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(422).render("auth/signup",
+            {
+                pageTitle: 'Signup',
+                path: '/signup',
+                error: errors.array()[0].msg,
+                oldInput:{email:email, password:password, confirmPassword: req.body.confirmPassword}
             })
+    }
+    bcrypt.hash(password, 12).then(hashedPassword => {
+        const newUser = new User({
+            email: email,
+            password: hashedPassword,
+            cart: {items: []}
         })
-        .catch(err => {
-            console.log(err)
+        return newUser.save()
+    }).then(() => {
+        res.redirect('/login')
+        return transporter.sendMail({
+            to: email,
+            from: 'menazaher115@gmail.com',
+            subject: "Successful Signup",
+            html: 'You Have Signed Up Successfully'
         })
+    }).catch(err => {
+        console.log(err)
+    })
+
 }
 
 exports.postLogout = (req, res, next) => {
@@ -104,6 +118,12 @@ exports.getReset = (req, res, next) => {
 
 exports.postReset = (req, res, next) => {
     const email = req.body.email
+
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(422).render("auth/reset", {pageTitle: 'Password Reset', path: '/reset', error: errors.array()[0].msg})
+    }
+
     crypto.randomBytes(32, (err, buffer) => {
         if (err) {
             console.log(err)
