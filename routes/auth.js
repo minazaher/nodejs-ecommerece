@@ -8,11 +8,15 @@ const router = express.Router()
 
 const INVALID_EMAIL_ERROR_MESSAGE = "This Email is Invalid"
 const EMAIL_EXIST_ERROR_MESSAGE = "This Email Already Exists"
+const USER_DOES_NOT_EXIST_ERROR_MESSAGE = "There is No User With This Email"
 const PASSWORD_ERROR_MESSAGE = "Please Enter a Password with Only Numbers and Text and At Least 5 Characters"
 const CONFIRM_PASSWORD_ERROR_MESSAGE = "Passwords Have to Match!"
 
 router.get('/login', authController.getLogin)
-router.post('/login', authController.postLogin)
+router.post('/login',
+    check('email', INVALID_EMAIL_ERROR_MESSAGE).isEmail().normalizeEmail(),
+    authController.postLogin)
+
 router.get('/signup', authController.getSignup)
 
 
@@ -20,6 +24,7 @@ router.post('/signup',
     [
         check('email', INVALID_EMAIL_ERROR_MESSAGE)
             .isEmail()
+            .normalizeEmail()
             .custom((email, {req}) => {
                 return User.findOne({email: email})
                     .then((user) => {
@@ -29,7 +34,8 @@ router.post('/signup',
             }),
         body('password', PASSWORD_ERROR_MESSAGE)
             .isLength({min: 8, max: 16})
-            .isAlphanumeric(),
+            .isAlphanumeric()
+            .trim(),
         body('confirmPassword', CONFIRM_PASSWORD_ERROR_MESSAGE)
             .custom((value, {req}) => value === req.body.password)
 

@@ -21,7 +21,17 @@ const transporter = nodeMailer.createTransport({
 exports.getLogin = (req, res, next) => {
     let errorMessage = req.flash('error')
     errorMessage = errorMessage.length > 0 ? errorMessage[0] : null
-    res.render("auth/login", {pageTitle: 'Login', path: '/login', isAuthenticated: false, error: errorMessage})
+    res.render("auth/login", {
+        pageTitle: 'Login',
+        path: '/login',
+        isAuthenticated: false,
+        error: errorMessage,
+        oldInput: {
+            email: "",
+            password: ""
+        },
+        validationErrors: []
+    })
 }
 
 exports.postLogin = (req, res, next) => {
@@ -30,14 +40,33 @@ exports.postLogin = (req, res, next) => {
 
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        return res.status(422).render("auth/login", {pageTitle: 'Login', path: '/login', error: errors.array()[0].msg})
+        return res.status(422).render("auth/login",
+            {
+                pageTitle: 'Login',
+                path: '/login',
+                error: "Invalid Email or password",
+                oldInput: {
+                    email: email,
+                    password: password
+                },
+                validationErrors: errors.array()
+            })
     }
 
     User.findOne({email: email})
         .then(user => {
             if (!user) {
-                req.flash('error', "Invalid Email or Password")
-                return res.redirect('/login')
+                return res.status(422).render("auth/login",
+                    {
+                        pageTitle: 'Login',
+                        path: '/login',
+                        error: "Invalid Email",
+                        oldInput: {
+                            email: email,
+                            password: password
+                        },
+                        validationErrors: []
+                    })
             }
             bcrypt.compare(password, user.password).then(passwordMatch => {
                 if (passwordMatch) {
@@ -47,8 +76,17 @@ exports.postLogin = (req, res, next) => {
                         res.redirect('/')
                     })
                 }
-                req.flash('error', "Invalid Email or Password")
-                return res.redirect('/login')
+                return res.status(422).render("auth/login",
+                    {
+                        pageTitle: 'Login',
+                        path: '/login',
+                        error: "Invalid Password",
+                        oldInput: {
+                            email: email,
+                            password: password
+                        },
+                        validationErrors: []
+                    })
             }).catch(err => {
                 console.log(err)
                 res.redirect('/login')
@@ -65,7 +103,8 @@ exports.getSignup = (req, res, next) => {
             pageTitle: 'Signup',
             path: '/signup',
             error: errorMessage,
-            oldInput: { email:"", password:"", confirmPassword: ""}
+            oldInput: {email: "", password: "", confirmPassword: ""},
+            validationErrors: []
         })
 }
 
@@ -74,12 +113,14 @@ exports.postSignup = (req, res, next) => {
     const password = req.body.password
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        console.log(errors.array())
         return res.status(422).render("auth/signup",
             {
                 pageTitle: 'Signup',
                 path: '/signup',
                 error: errors.array()[0].msg,
-                oldInput:{email:email, password:password, confirmPassword: req.body.confirmPassword}
+                oldInput: {email: email, password: password, confirmPassword: req.body.confirmPassword},
+                validationErrors: errors.array()
             })
     }
     bcrypt.hash(password, 12).then(hashedPassword => {
@@ -121,7 +162,11 @@ exports.postReset = (req, res, next) => {
 
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-        return res.status(422).render("auth/reset", {pageTitle: 'Password Reset', path: '/reset', error: errors.array()[0].msg})
+        return res.status(422).render("auth/reset", {
+            pageTitle: 'Password Reset',
+            path: '/reset',
+            error: errors.array()[0].msg
+        })
     }
 
     crypto.randomBytes(32, (err, buffer) => {
