@@ -92,7 +92,12 @@ exports.postLogin = (req, res, next) => {
                 res.redirect('/login')
             })
 
-        }).catch(err => console.log(err))
+        })
+        .catch((err) => {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
+    })
 }
 
 exports.getSignup = (req, res, next) => {
@@ -138,9 +143,11 @@ exports.postSignup = (req, res, next) => {
             subject: "Successful Signup",
             html: 'You Have Signed Up Successfully'
         })
-    }).catch(err => {
-        console.log(err)
-    })
+    }).catch((err) => {
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 
 }
 
@@ -194,10 +201,11 @@ exports.postReset = (req, res, next) => {
                 <p> You Requested a Password Reset For This Email ${email}</p>
                 <p>Click this <a href= "http://localhost:3000/reset/${token}">Link</a> to set a new password</p>`
             })
+        })  .catch((err) => {
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
         })
-            .catch(err =>
-                console.log(err)
-            )
     })
 }
 
@@ -246,7 +254,11 @@ exports.postNewPassword = (req, res, next) => {
         .then(result => {
             res.redirect('/login')
         })
-        .catch(err => console.log(err))
+        .catch((err) => {
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 }
 
 

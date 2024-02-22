@@ -37,6 +37,7 @@ router.post('/signup',
             .isAlphanumeric()
             .trim(),
         body('confirmPassword', CONFIRM_PASSWORD_ERROR_MESSAGE)
+            .trim()
             .custom((value, {req}) => value === req.body.password)
 
     ],
