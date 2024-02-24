@@ -10,9 +10,9 @@ const multer = require('multer')
 
 const databaseUrl = require('./util/database').databaseUrl
 
-const store= new sessionStore({
+const store = new sessionStore({
     uri: databaseUrl,
-    collection : 'sessions'
+    collection: 'sessions'
 })
 const csrfProtection = CSRF();
 const multerStorage = multer.diskStorage({
@@ -33,7 +33,6 @@ const authRoutes = require('./routes/auth')
 const errorController = require("./controllers/errorController")
 
 
-
 const User = require('./models/user')
 const {diskStorage} = require("multer");
 
@@ -51,28 +50,37 @@ app.use(session({secret:'secret_code', resave:false, saveUninitialized:false, st
 app.use(csrfProtection)
 
 app.use(flash())
-app.use((req, res, next) => {
-    if (!req.session.user) return next()
-    User.findById(req.session.user._id)
-        .then(user =>{
-            req.user = user
-            next()
-        }).catch(err => console.log(err))
-    }
-)
 
-app.use((req, res, next) =>{
+app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn
     res.locals.csrfToken = req.csrfToken()
     next()
 })
 
+app.use((req, res, next) => {
+             if (!req.session.user) return next()
+        User.findById(req.session.user._id)
+            .then(user => {
+                req.user = user
+                next()
+            }).catch(err => {
+            next(new Error(err))
+        })
+    }
+)
+
+
 app.use('/admin/', adminRoutes)
 app.use(authRoutes)
 app.use(shopRoutes)
 
+app.get('/500', errorController.get500)
 
 app.use(errorController.get404)
+
+app.use((err, req, res, next) => {
+    res.status(500).render('500', {path:'' ,pageTitle: 'Error!',isAuthenticated: req.session.isLoggedIn})
+})
 
 mongoose.connect(databaseUrl).then(() => {
     app.listen(3000)
