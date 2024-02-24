@@ -1,6 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 
+const pdfKit = require('pdfkit')
+
 const Product = require('../models/product')
 const Order = require('../models/order')
 
@@ -160,12 +162,40 @@ exports.getInvoice = (req, res, next) => {
             console.log("false")
             return next(new Error('Unauthorized Request'))
         }
-        const invoiceName = 'invoice.pdf'
+        const invoiceName = 'invoice-' + orderId + ".pdf"
         const invoicePath = path.join('data', 'invoices', invoiceName)
-        const file = fs.createReadStream(invoicePath)
+
+        const pdfDoc = new pdfKit()
+
         res.setHeader('Content-Type', 'application/pdf')
         res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"');
-        file.pipe(res)
+
+        pdfDoc.pipe(fs.createWriteStream(invoicePath))
+        pdfDoc.pipe(res)
+
+        pdfDoc.fontSize(26).text('Invoice', {
+            underline: true
+        });
+        pdfDoc.text('-----------------------');
+        let totalPrice = 0;
+        order.products.forEach(prod => {
+            totalPrice += prod.qty * prod.product.price;
+            pdfDoc
+                .fontSize(14)
+                .text(
+                    prod.product.title +
+                    ' - ' +
+                    prod.qty +
+                    ' x ' +
+                    '$' +
+                    prod.product.price
+                );
+        });
+        pdfDoc.text('---');
+        pdfDoc.fontSize(20).text('Total Price: $' + totalPrice);
+
+        pdfDoc.end();
+
     }).catch(err => {
         console.log("Error found ", err)
         const error = new Error(err)
@@ -175,16 +205,3 @@ exports.getInvoice = (req, res, next) => {
 
 }
 
-
-/*
-
-        fs.readFile(invoicePath, (err, file) =>{
-            if (err) {
-                console.log("error" + err)
-                return next(err)
-            }
-            res.setHeader('Content-Type', 'application/pdf')
-            res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
-            res.send(file)
-        })
- */
