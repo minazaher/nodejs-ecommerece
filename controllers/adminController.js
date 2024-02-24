@@ -17,15 +17,32 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imgUrl = req.file;
+    const image = req.file;
     const description = req.body.description;
     const price = req.body.price;
-    console.log(imgUrl)
+
+    if (!image){
+        console.log("Not Image")
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product',
+            path: '/admin/add-product',
+            editing: false,
+            hasError: true,
+            product: {
+                title: title,
+                price: price,
+                description: description,
+            },
+            errorMessage: "Attached files is not an image",
+            validationErrors: []
+        });
+    }
+    const imgUrl = image.path
     const product = new Product({
             title: title,
             price: price,
             description: description,
-            imgUrl: "imgUrl",
+            imgUrl: imgUrl,
             userId: req.user._id
         }
     )
@@ -75,7 +92,7 @@ exports.postEditProduct = (req, res, next) => {
     const prodId = req.body.productId;
     const updatedTitle = req.body.title;
     const updatedPrice = req.body.price;
-    const updatedImageUrl = req.body.imgUrl;
+    const updatedImage = req.file;
     const updatedDesc = req.body.description;
 
     const errors = validationResult(req);
@@ -88,7 +105,6 @@ exports.postEditProduct = (req, res, next) => {
             hasError: true,
             product: {
                 title: updatedTitle,
-                imageUrl: updatedImageUrl,
                 price: updatedPrice,
                 description: updatedDesc,
                 _id: prodId
@@ -105,7 +121,7 @@ exports.postEditProduct = (req, res, next) => {
             }
             product.title = updatedTitle
             product.price = updatedPrice
-            product.imgUrl = updatedImageUrl
+            product.imgUrl = updatedImage?.path
             product.description = updatedDesc
             return product.save().then(() => {
                 res.redirect('/admin/products');
@@ -117,9 +133,6 @@ exports.postEditProduct = (req, res, next) => {
             return next(error)
         })
 };
-
-
-
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId
