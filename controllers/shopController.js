@@ -7,7 +7,7 @@ exports.getIndex = (req, res, next) => {
         .then((rows) => {
             res.render("shop/product-list", {
                 prods: rows,
-                pageTitle:'Shop',
+                pageTitle: 'Shop',
                 path: '/'
             })
         })
@@ -22,7 +22,7 @@ exports.getProducts = (req, res, next) => {
     Product.find()
         .then((rows) => {
             res.render("shop/product-list", {
-                    prods: rows,
+                prods: rows,
                 pageTitle: 'Shop',
                 path: '/products'
 
@@ -56,12 +56,12 @@ exports.getProductDetails = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
     req.user.populate('cart.items.productId')
-        .then( user => {
-            const products = user.cart.items.map( p =>{
-                return {qty: p.qty, product:{...p.productId._doc}}
+        .then(user => {
+            const products = user.cart.items.map(p => {
+                return {qty: p.qty, product: {...p.productId._doc}}
             })
             const order = new Order({
-                user:{
+                user: {
                     email: req.user.email,
                     userId: req.user
                 },
@@ -70,8 +70,8 @@ exports.postOrder = (req, res, next) => {
             console.log(order)
             return order.save()
         })
-        .then(() =>{
-            req.user.cart = {items:[]}
+        .then(() => {
+            req.user.cart = {items: []}
             req.user.save()
             res.redirect('/orders')
         })
@@ -85,8 +85,9 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
     Order.find({"user.userId": req.user._id})
-        .then(orders =>{
-            res.render("shop/orders", {orders: orders,
+        .then(orders => {
+            res.render("shop/orders", {
+                orders: orders,
                 pageTitle: 'Orders',
                 path: '/orders'
             })
@@ -105,27 +106,28 @@ exports.getCheckout = (req, res, next) => {
 exports.getCart = (req, res, next) => {
     req.user
         .populate('cart.items.productId')
-        .then( user => {
+        .then(user => {
             const products = user.cart.items
-        res.render("shop/cart", {pageTitle: 'Cart', path: '/cart', products: products
+            res.render("shop/cart", {
+                pageTitle: 'Cart', path: '/cart', products: products
+            })
         })
-    } )
         .catch((err) => {
-        const error = new Error(err)
-        error.httpStatusCode = 500
-        return next(error)
-    })
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 
 }
 
 exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
     Product.findById(productId)
-        .then((product) =>{
+        .then((product) => {
             return req.user.addToCart(product)
-        }).then(result =>{
-            res.redirect('/cart')
-    })  .catch((err) => {
+        }).then(result => {
+        res.redirect('/cart')
+    }).catch((err) => {
         const error = new Error(err)
         error.httpStatusCode = 500
         return next(error)
@@ -136,7 +138,7 @@ exports.postCart = (req, res, next) => {
 exports.postDeleteCartProduct = (req, res, next) => {
     const prodId = req.body.productId
     req.user.deleteFromCart(prodId)
-        .then(() =>{
+        .then(() => {
             res.redirect('/cart')
         })
         .catch((err) => {

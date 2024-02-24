@@ -24,7 +24,6 @@ exports.getLogin = (req, res, next) => {
     res.render("auth/login", {
         pageTitle: 'Login',
         path: '/login',
-        isAuthenticated: false,
         error: errorMessage,
         oldInput: {
             email: "",
@@ -44,7 +43,7 @@ exports.postLogin = (req, res, next) => {
             {
                 pageTitle: 'Login',
                 path: '/login',
-                error: "Invalid Email or password",
+                error: errors.array()[0].msg,
                 oldInput: {
                     email: email,
                     password: password
@@ -72,7 +71,8 @@ exports.postLogin = (req, res, next) => {
                 if (passwordMatch) {
                     req.session.isLoggedIn = true
                     req.session.user = user
-                    return req.session.save(() => {
+                    return req.session.save((err) => {
+                        console.log(err);
                         res.redirect('/')
                     })
                 }
@@ -80,7 +80,7 @@ exports.postLogin = (req, res, next) => {
                     {
                         pageTitle: 'Login',
                         path: '/login',
-                        error: "Invalid Password",
+                        error: 'Invalid email or password.',
                         oldInput: {
                             email: email,
                             password: password

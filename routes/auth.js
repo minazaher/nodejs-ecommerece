@@ -13,36 +13,58 @@ const PASSWORD_ERROR_MESSAGE = "Please Enter a Password with Only Numbers and Te
 const CONFIRM_PASSWORD_ERROR_MESSAGE = "Passwords Have to Match!"
 
 router.get('/login', authController.getLogin)
-router.post('/login',
-    check('email', INVALID_EMAIL_ERROR_MESSAGE).isEmail().normalizeEmail(),
-    authController.postLogin)
+router.post(
+    '/login',
+    [
+        body('email')
+            .isEmail()
+            .withMessage(INVALID_EMAIL_ERROR_MESSAGE)
+            .normalizeEmail(),
+        body('password', PASSWORD_ERROR_MESSAGE)
+            .isLength({ min: 5 })
+            .isAlphanumeric()
+            .trim()
+    ],
+    authController.postLogin
+);
 
 router.get('/signup', authController.getSignup)
 
 
-router.post('/signup',
+router.post(
+    '/signup',
     [
-        check('email', INVALID_EMAIL_ERROR_MESSAGE)
+        check('email')
             .isEmail()
-            .normalizeEmail()
-            .custom((email, {req}) => {
-                return User.findOne({email: email})
-                    .then((user) => {
-                        if (user)
-                            return Promise.reject(EMAIL_EXIST_ERROR_MESSAGE)
-                    })
-            }),
-        body('password', PASSWORD_ERROR_MESSAGE)
-            .isLength({min: 8, max: 16})
+            .withMessage(INVALID_EMAIL_ERROR_MESSAGE)
+            .custom((value, { req }) => {
+                return User.findOne({ email: value }).then(userDoc => {
+                    if (userDoc) {
+                        return Promise.reject(
+                            EMAIL_EXIST_ERROR_MESSAGE
+                        );
+                    }
+                });
+            })
+            .normalizeEmail(),
+        body(
+            'password',PASSWORD_ERROR_MESSAGE
+        )
+            .isLength({ min: 5 })
             .isAlphanumeric()
             .trim(),
-        body('confirmPassword', CONFIRM_PASSWORD_ERROR_MESSAGE)
+        body('confirmPassword')
             .trim()
-            .custom((value, {req}) => value === req.body.password)
-
+            .custom((value, { req }) => {
+                if (value !== req.body.password) {
+                    throw new Error(CONFIRM_PASSWORD_ERROR_MESSAGE);
+                }
+                return true;
+            })
     ],
     authController.postSignup
-)
+);
+
 router.post('/logout', authController.postLogout)
 router.get('/reset', authController.getReset)
 
