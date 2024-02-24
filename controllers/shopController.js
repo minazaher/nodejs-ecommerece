@@ -1,3 +1,6 @@
+const path = require('path')
+const fs = require('fs')
+
 const Product = require('../models/product')
 const Order = require('../models/order')
 
@@ -150,3 +153,17 @@ exports.postDeleteCartProduct = (req, res, next) => {
 
 }
 
+exports.getInvoice = (req, res, next) => {
+    const invoiceName = 'invoice.pdf'
+    const invoicePath = path.join('data', 'invoices', invoiceName)
+    fs.readFile(invoicePath, (err, file) =>{
+        if (err) {
+            console.log("error" + err)
+            return next(err)
+        }
+        res.setHeader('Content-Type', 'application/pdf')
+        res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+        res.setHeader('Content-Disposition', 'inline')
+        res.send(file)
+    })
+}

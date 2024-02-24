@@ -1,4 +1,5 @@
 exports.get404 = (req, res, next) => {
+    console.log("Request is : " , req)
     res.status(404).render('page-not-found', {
         path: '/404',
         pageTitle: 'Page Not Found',

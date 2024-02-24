@@ -20,6 +20,9 @@ router.post('/cart-delete-item',isAuthenticated, shopController.postDeleteCartPr
 router.get('/orders',isAuthenticated, shopController.getOrders)
 
 router.post('/create-order',isAuthenticated, shopController.postOrder)
+
+router.get('/download-order', isAuthenticated, shopController.getInvoice)
+
 /*
 router.get('/checkout',shopController.getCheckout)
 */
