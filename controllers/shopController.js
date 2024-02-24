@@ -154,16 +154,37 @@ exports.postDeleteCartProduct = (req, res, next) => {
 }
 
 exports.getInvoice = (req, res, next) => {
-    const invoiceName = 'invoice.pdf'
-    const invoicePath = path.join('data', 'invoices', invoiceName)
-    fs.readFile(invoicePath, (err, file) =>{
-        if (err) {
-            console.log("error" + err)
-            return next(err)
+    const orderId = req.params.orderId
+    Order.findById(orderId).then(order => {
+        if (order.user.userId.toString() !== req.session.user._id.toString()) {
+            console.log("false")
+            return next(new Error('Unauthorized Request'))
         }
+        const invoiceName = 'invoice.pdf'
+        const invoicePath = path.join('data', 'invoices', invoiceName)
+        const file = fs.createReadStream(invoicePath)
         res.setHeader('Content-Type', 'application/pdf')
-        res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
-        res.setHeader('Content-Disposition', 'inline')
-        res.send(file)
+        res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"');
+        file.pipe(res)
+    }).catch(err => {
+        console.log("Error found ", err)
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
     })
+
 }
+
+
+/*
+
+        fs.readFile(invoicePath, (err, file) =>{
+            if (err) {
+                console.log("error" + err)
+                return next(err)
+            }
+            res.setHeader('Content-Type', 'application/pdf')
+            res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+            res.send(file)
+        })
+ */
