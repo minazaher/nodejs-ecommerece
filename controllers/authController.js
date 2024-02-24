@@ -94,10 +94,10 @@ exports.postLogin = (req, res, next) => {
 
         })
         .catch((err) => {
-        const error = new Error(err)
-        error.httpStatusCode = 500
-        return next(error)
-    })
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 }
 
 exports.getSignup = (req, res, next) => {
@@ -144,10 +144,10 @@ exports.postSignup = (req, res, next) => {
             html: 'You Have Signed Up Successfully'
         })
     }).catch((err) => {
-            const error = new Error(err)
-            error.httpStatusCode = 500
-            return next(error)
-        })
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
+    })
 
 }
 
@@ -201,7 +201,7 @@ exports.postReset = (req, res, next) => {
                 <p> You Requested a Password Reset For This Email ${email}</p>
                 <p>Click this <a href= "http://localhost:3000/reset/${token}">Link</a> to set a new password</p>`
             })
-        })  .catch((err) => {
+        }).catch((err) => {
             const error = new Error(err)
             error.httpStatusCode = 500
             return next(error)

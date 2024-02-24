@@ -1,5 +1,5 @@
 const Product = require('../models/product')
-const { validationResult } = require('express-validator');
+const {validationResult} = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
     res.render(
@@ -21,7 +21,7 @@ exports.postAddProduct = (req, res, next) => {
     const description = req.body.description;
     const price = req.body.price;
 
-    if (!image){
+    if (!image) {
         console.log("Not Image")
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Add Product',
@@ -81,10 +81,10 @@ exports.getEditProduct = (req, res, next) => {
             });
         })
         .catch((err) => {
-        const error = new Error(err)
-        error.httpStatusCode = 500
-        return next(error)
-    })
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 
 };
 
@@ -141,13 +141,12 @@ exports.postDeleteProduct = (req, res, next) => {
             res.redirect('/admin/products')
         })
         .catch((err) => {
-        const error = new Error(err)
-        error.httpStatusCode = 500
-        return next(error)
-    })
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
+        })
 
 }
-
 
 exports.getAdminProducts = (req, res, next) => {
     Product.find({userId: req.user._id})
