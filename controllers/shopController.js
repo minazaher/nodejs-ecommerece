@@ -9,15 +9,25 @@ const Order = require('../models/order')
 const ITEMS_PER_PAGE = 2
 
 exports.getIndex = (req, res, next) => {
-    const pageNumber = req.query.page
-    Product.find()
-        .skip((pageNumber - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE)
-        .then((rows) => {
+    const pageNumber = + req.query.page || 1
+    let totalItems ;
+
+    Product.find().countDocuments().then(numberOfProducts =>{
+        totalItems = numberOfProducts
+        return Product.find()
+            .skip((pageNumber - 1) * ITEMS_PER_PAGE)
+            .limit(ITEMS_PER_PAGE)
+    }).then((rows) => {
             res.render("shop/index", {
                 prods: rows,
                 pageTitle: 'Shop',
-                path: '/'
+                path: '/',
+                hasNext: pageNumber * ITEMS_PER_PAGE < totalItems,
+                hasPrevious: pageNumber > 1,
+                currentPage: pageNumber,
+                nextPage: pageNumber + +1,
+                previousPage: pageNumber - 1,
+                lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             })
         })
         .catch((err) => {
