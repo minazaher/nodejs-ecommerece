@@ -151,8 +151,6 @@ exports.postDeleteCartProduct = (req, res, next) => {
             error.httpStatusCode = 500
             return next(error)
         })
-
-
 }
 
 exports.getInvoice = (req, res, next) => {

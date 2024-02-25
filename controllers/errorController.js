@@ -1,5 +1,4 @@
 exports.get404 = (req, res, next) => {
-    console.log("Request is : " , req)
     res.status(404).render('page-not-found', {
         path: '/404',
         pageTitle: 'Page Not Found',
@@ -8,7 +7,6 @@ exports.get404 = (req, res, next) => {
 }
 
 exports.get500 = (req, res, next) => {
-    console.log("Reached get 500 with req", req)
     res.status(500).render('500', {
         path: '',
         pageTitle: 'Error!',
