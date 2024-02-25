@@ -10,7 +10,7 @@ const Order = require('../models/order')
 exports.getIndex = (req, res, next) => {
     Product.find()
         .then((rows) => {
-            res.render("shop/product-list", {
+            res.render("shop/index", {
                 prods: rows,
                 pageTitle: 'Shop',
                 path: '/'

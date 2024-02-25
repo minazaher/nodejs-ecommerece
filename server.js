@@ -42,8 +42,9 @@ const shopRoutes = require('./routes/shop')
 const authRoutes = require('./routes/auth')
 
 app.use(bodyParser.urlencoded({extended: false}))
+
 app.use(express.static(path.join(__dirname, 'public')))
-app.use('/images ',express.static(path.join(__dirname, 'images')))
+app.use('/images',express.static(path.join(__dirname, 'images')))
 
 app.use(multer({storage: multerStorage}).single('image'))
 app.use(session({secret:'secret_code', resave:false, saveUninitialized:false, store: store}))
