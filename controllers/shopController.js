@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-
+const stripe = require('stripe')('sk_test_51NR7UYDNDAkufzaA5etuDVAUCXZQNUj9VVfW9jatoi7kJSvQRxNkMyhBTT4dU01QrhniaeBakmEXuTQs0i5tX4Av00KtxRtvgC')
 const pdfKit = require('pdfkit')
 
 const Product = require('../models/product')
@@ -129,11 +129,51 @@ exports.getOrders = (req, res, next) => {
             return next(error)
         })
 }
-/*
+
 exports.getCheckout = (req, res, next) => {
-    res.render("shop/checkout", {pageTitle: 'Checkout', path: '/checkout'})
+    let products;
+    let total = 0;
+
+    req.user
+        .populate('cart.items.productId')
+        .then(user => {
+            const products = user.cart.items
+            console.log("Products are : ", products)
+            total = 0;
+            products.forEach(p => {
+                total += p.qty * p.productId.price
+            })
+            return stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items:
+                    products.map(p=>{
+                        return {
+                            price_data: {
+                                currency: 'usd',
+                                product_data: {
+                                    name: p.productId.title
+                                },
+                                unit_amount: p.productId.price * 100
+                            },
+                            quantity: p.qty
+                        }}),
+                mode: 'payment',
+                success_url: req.protocol+ '://' + req.get('host')+'/checkout/success',
+                cancel_url:req.protocol+ '://' + req.get('host')+'/checkout/cancel'
+            })
+
+        }).then(session => {
+        res.redirect(303, session.url);
+    })
+        .catch((err) => {
+            console.log(err)
+
+            // const error = new Error(err)
+            // error.httpStatusCode = 500
+            // return next(error)
+        })
 }
-*/
+
 exports.getCart = (req, res, next) => {
     req.user
         .populate('cart.items.productId')

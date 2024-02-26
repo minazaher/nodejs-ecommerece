@@ -8,8 +8,6 @@ const adminController = require("../controllers/adminController")
 
 const router = express.Router()
 
-
-
 router.get('/add-product' ,isAuthenticated ,adminController.getAddProduct)
 
 // /admin/add-product => POST
@@ -48,6 +46,6 @@ router.post(
     isAuthenticated,
     adminController.postEditProduct
 );
-router.post('/delete-product',isAuthenticated , adminController.postDeleteProduct)
+router.delete('/delete-product/:productId',isAuthenticated , adminController.deleteProduct)
 
 module.exports = router;

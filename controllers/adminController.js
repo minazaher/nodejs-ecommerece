@@ -137,17 +137,15 @@ exports.postEditProduct = (req, res, next) => {
         })
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-    const prodId = req.body.productId
+exports.deleteProduct = (req, res, next) => {
+    const prodId = req.params.productId
     Product.findOneAndDelete({_id: prodId, userId: req.user._id})
         .then((product) => {
-            fileUtil.deleteFile(product.imgUrl)
-            res.redirect('/admin/products')
+            res.status(200).json({message: "Success"})
         })
         .catch((err) => {
-            const error = new Error(err)
-            error.httpStatusCode = 500
-            return next(error)
+            console.log(err)
+            res.status(500).json({message: "Deleting Product Failed" + err})
         })
 
 }
@@ -166,5 +164,6 @@ exports.getAdminProducts = (req, res, next) => {
             error.httpStatusCode = 500
             return next(error)
         })
+
 }
 
