@@ -1,10 +1,11 @@
 const mongodb = require('mongodb')
+const dotenv = require('dotenv').config();
 const MongoClient = mongodb.MongoClient
 
 let db
 const mongoConnect = (callback) =>{
     MongoClient
-        .connect("mongodb+srv://MinaZaher:QvyBUi6Oq7TbXpks@cluster0.mysoorl.mongodb.net/")
+        .connect(process.env.MONGO_DATABASE_URI)
         .then(client =>{
             console.log("Connected Successfully!")
             db = client.db('shop')
@@ -24,6 +25,6 @@ const getDb = () => {
 };
 
 
-exports.databaseUrl = "mongodb+srv://MinaZaher:QvyBUi6Oq7TbXpks@cluster0.mysoorl.mongodb.net/";
+exports.databaseUrl = process.env.MONGO_DATABASE_URI;
 exports.mongoConnect = mongoConnect
 exports.getDb = getDb

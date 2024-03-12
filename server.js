@@ -1,19 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require("path")
+const fs = require('fs')
 const mongoose = require('mongoose')
 const session = require('express-session')
 const sessionStore = require('connect-mongodb-session')(session)
 const CSRF = require('csurf')
 const flash = require('connect-flash')
 const multer = require('multer')
+const helmet = require('helmet')
+const compression = require('compression')
+const morgan = require('morgan')
 
 const errorController = require("./controllers/errorController")
 const User = require('./models/user')
 
 const databaseUrl = require('./util/database').databaseUrl
+const logStream = fs.createWriteStream(path.join(__dirname, "access.log"), {flags : "a"})
 
 const app = express()
+app.use(helmet())
+app.use(compression())
+app.use(morgan('common',  {stream : logStream}))
 
 const store = new sessionStore({
     uri: databaseUrl,
@@ -21,7 +29,6 @@ const store = new sessionStore({
 })
 
 const csrfProtection = CSRF();
-
 const multerStorage = multer.diskStorage({
     destination: (req,file,cb) => cb(null, 'images'),
     filename: (req,file,cb) => cb(null, file.originalname)
@@ -93,7 +100,7 @@ app.use((error, req, res, next) => {
     });
 });
 mongoose.connect(databaseUrl).then(() => {
-    app.listen(3000)
+    app.listen(process.env.PORT ||3000)
 }).catch(err => {
     console.log(err)
 })
