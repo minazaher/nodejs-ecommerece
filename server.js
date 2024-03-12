@@ -11,6 +11,7 @@ const multer = require('multer')
 const helmet = require('helmet')
 const compression = require('compression')
 const morgan = require('morgan')
+const https = require('https')
 
 const errorController = require("./controllers/errorController")
 const User = require('./models/user')
@@ -29,6 +30,10 @@ const store = new sessionStore({
 })
 
 const csrfProtection = CSRF();
+
+const privateKey = fs.readFileSync('server.key')
+const certificate = fs.readFileSync('server.cert')
+
 const multerStorage = multer.diskStorage({
     destination: (req,file,cb) => cb(null, 'images'),
     filename: (req,file,cb) => cb(null, file.originalname)
@@ -100,7 +105,8 @@ app.use((error, req, res, next) => {
     });
 });
 mongoose.connect(databaseUrl).then(() => {
-    app.listen(process.env.PORT ||3000)
+    https.createServer({key: privateKey, cert: certificate},app)
+        .listen(process.env.PORT ||3000)
 }).catch(err => {
     console.log(err)
 })

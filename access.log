@@ -12,3 +12,11 @@
 ::1 - - [12/Mar/2024:13:07:52 +0000] "GET /images/img_un3less2.jpeg HTTP/1.1" 304 -
 ::1 - - [12/Mar/2024:13:07:52 +0000] "GET /images/WhatsApp%20Image%202023-11-12%20at%2012.26.33%20AM%20(1).jpeg HTTP/1.1" 304 -
 ::1 - - [12/Mar/2024:13:07:52 +0000] "GET /js/admin.js HTTP/1.1" 304 -
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET / HTTP/1.1" 200 -
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /css/product.css HTTP/1.1" 200 379
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /css/main.css HTTP/1.1" 200 -
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /js/admin.js HTTP/1.1" 200 409
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /js/main.js HTTP/1.1" 200 519
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /images/img_un3less2.jpeg HTTP/1.1" 200 90675
+::1 - - [12/Mar/2024:16:36:10 +0000] "GET /images/WhatsApp%20Image%202023-11-12%20at%2012.26.33%20AM%20(1).jpeg HTTP/1.1" 200 492600
+::1 - - [12/Mar/2024:16:36:11 +0000] "GET /favicon.ico HTTP/1.1" 404 -
