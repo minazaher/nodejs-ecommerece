@@ -13,8 +13,8 @@ const transporter = nodeMailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: 'menazaher115@gmail.com',
-        pass: 'jvmf rblg vgkd ldfa'
+        user: `${process.env.SMTP_EMAIL}`,
+        pass: `${process.env.SMTP_PASSWORD}`
     },
 });
 
